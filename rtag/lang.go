@@ -25,16 +25,20 @@ func runLang(cmd *cobra.Command, args []string) {
 		fmt.Println()
 		fmt.Println("Usage: rtag lang [en|zh]")
 		fmt.Println("Environment variable: RTAG_LANG=[en|zh]")
+		fmt.Println("Config file: ~/.config/rtag/config")
 		return
 	}
 
 	// Set language
 	lang := args[0]
+	var newLang Language
 	switch lang {
 	case "en", "english":
+		newLang = LangEN
 		SetLanguage(LangEN)
 		fmt.Println("Language set to English")
 	case "zh", "chinese", "中文":
+		newLang = LangZH
 		SetLanguage(LangZH)
 		fmt.Println("语言已设置为中文")
 	default:
@@ -43,5 +47,11 @@ func runLang(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Println("Note: Language change will take effect on next command execution.")
+	// Save language preference
+	if err := saveLanguage(newLang); err != nil {
+		fmt.Printf("Warning: Failed to save language preference: %v\n", err)
+		fmt.Println("Language setting is temporary for this session only.")
+	} else {
+		fmt.Println("Language preference saved successfully.")
+	}
 }

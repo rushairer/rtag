@@ -1,7 +1,10 @@
 package rtag
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -175,7 +178,7 @@ func InitI18n() {
 
 // detectLanguage detects the user's preferred language
 func detectLanguage() Language {
-	// Check RTAG_LANG environment variable first
+	// Check RTAG_LANG environment variable first (highest priority)
 	if envLang := os.Getenv("RTAG_LANG"); envLang != "" {
 		switch strings.ToLower(envLang) {
 		case "zh", "zh_cn", "chinese":
@@ -185,22 +188,166 @@ func detectLanguage() Language {
 		}
 	}
 
-	// Check LANG environment variable
-	if envLang := os.Getenv("LANG"); envLang != "" {
-		if strings.Contains(strings.ToLower(envLang), "zh") {
+	// Check saved language preference (second priority)
+	if savedLang := loadSavedLanguage(); savedLang != "" {
+		switch savedLang {
+		case "zh":
 			return LangZH
+		case "en":
+			return LangEN
 		}
 	}
 
-	// Check LC_ALL environment variable
-	if envLang := os.Getenv("LC_ALL"); envLang != "" {
-		if strings.Contains(strings.ToLower(envLang), "zh") {
-			return LangZH
-		}
+	// Auto-detect system language (third priority)
+	if isChineseSystem() {
+		return LangZH
 	}
 
-	// Default to English
+	// Default to English for all other languages
 	return LangEN
+}
+
+// isChineseSystem detects if the system is using Chinese language
+func isChineseSystem() bool {
+	// Check multiple environment variables for Chinese locale
+	// Priority order: LANG, LC_ALL, LC_MESSAGES, LANGUAGE
+	envVars := []string{"LANG", "LC_ALL", "LC_MESSAGES", "LANGUAGE"}
+
+	for _, envVar := range envVars {
+		if envValue := os.Getenv(envVar); envValue != "" {
+			envLower := strings.ToLower(envValue)
+			// Check for Chinese locale indicators
+			if strings.Contains(envLower, "zh") ||
+				strings.Contains(envLower, "chinese") ||
+				strings.Contains(envLower, "cn") ||
+				strings.Contains(envLower, "tw") ||
+				strings.Contains(envLower, "hk") ||
+				strings.Contains(envLower, "mo") {
+				return true
+			}
+			// If we find a non-Chinese locale, return false immediately
+			// This prevents fallback checks from overriding explicit locale settings
+			if strings.Contains(envLower, "en") ||
+				strings.Contains(envLower, "fr") ||
+				strings.Contains(envLower, "de") ||
+				strings.Contains(envLower, "es") ||
+				strings.Contains(envLower, "ja") ||
+				strings.Contains(envLower, "ko") {
+				return false
+			}
+		}
+	}
+
+	// Only check system-specific methods if no locale environment variables are set
+	// Additional check for macOS system language
+	if isMacOSChineseSystem() {
+		return true
+	}
+
+	// Additional check for Windows system language
+	if isWindowsChineseSystem() {
+		return true
+	}
+
+	return false
+}
+
+// isMacOSChineseSystem checks if macOS is using Chinese language
+func isMacOSChineseSystem() bool {
+	// Try to get macOS system language using defaults command
+	cmd := exec.Command("defaults", "read", "-g", "AppleLanguages")
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+
+	outputStr := strings.ToLower(string(output))
+	return strings.Contains(outputStr, "zh") ||
+		strings.Contains(outputStr, "chinese")
+}
+
+// isWindowsChineseSystem checks if Windows is using Chinese language
+func isWindowsChineseSystem() bool {
+	// Check Windows-specific environment variables
+	if userLang := os.Getenv("USERLANG"); userLang != "" {
+		userLangLower := strings.ToLower(userLang)
+		if strings.Contains(userLangLower, "zh") ||
+			strings.Contains(userLangLower, "chinese") {
+			return true
+		}
+	}
+
+	// Try to get Windows system locale using PowerShell
+	cmd := exec.Command("powershell", "-Command", "Get-Culture | Select-Object -ExpandProperty Name")
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+
+	outputStr := strings.ToLower(string(output))
+	return strings.Contains(outputStr, "zh") ||
+		strings.Contains(outputStr, "cn")
+}
+
+// loadSavedLanguage loads the saved language preference from config file
+func loadSavedLanguage() string {
+	configPath := getConfigPath()
+	if configPath == "" {
+		return ""
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return ""
+	}
+
+	lang := strings.TrimSpace(string(data))
+	if lang == "en" || lang == "zh" {
+		return lang
+	}
+	return ""
+}
+
+// saveLanguage saves the language preference to config file
+func saveLanguage(lang Language) error {
+	configPath := getConfigPath()
+	if configPath == "" {
+		return fmt.Errorf("unable to determine config path")
+	}
+
+	// Create config directory if it doesn't exist
+	configDir := filepath.Dir(configPath)
+	if err := os.MkdirAll(configDir, 0755); err != nil {
+		return fmt.Errorf("failed to create config directory: %v", err)
+	}
+
+	// Write language preference
+	langStr := string(lang)
+	if err := os.WriteFile(configPath, []byte(langStr), 0644); err != nil {
+		return fmt.Errorf("failed to save language preference: %v", err)
+	}
+
+	return nil
+}
+
+// getConfigPath returns the path to the config file
+func getConfigPath() string {
+	// Try XDG_CONFIG_HOME first
+	if configHome := os.Getenv("XDG_CONFIG_HOME"); configHome != "" {
+		return filepath.Join(configHome, "rtag", "config")
+	}
+
+	// Fall back to ~/.config/rtag/config
+	if homeDir := os.Getenv("HOME"); homeDir != "" {
+		return filepath.Join(homeDir, ".config", "rtag", "config")
+	}
+
+	// Windows fallback
+	if userProfile := os.Getenv("USERPROFILE"); userProfile != "" {
+		return filepath.Join(userProfile, ".rtag", "config")
+	}
+
+	return ""
 }
 
 // SetLanguage sets the current language
