@@ -7,13 +7,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
-	Use:   "rtag",
-	Short: "A CLI tool for managing release tags",
-	Long:  `rtag is a command line tool for managing release tags with git integration.`,
-	CompletionOptions: cobra.CompletionOptions{
-		DisableDefaultCmd: true,
-	},
+var rootCmd *cobra.Command
+
+func init() {
+	// Initialize i18n
+	InitI18n()
+
+	// Initialize root command with translated strings
+	rootCmd = &cobra.Command{
+		Use:   "rtag",
+		Short: T().RootShort,
+		Long:  T().RootLong,
+		CompletionOptions: cobra.CompletionOptions{
+			DisableDefaultCmd: true,
+		},
+	}
 }
 
 func Execute() {

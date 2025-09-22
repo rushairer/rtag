@@ -13,63 +13,86 @@ import (
 
 const rtagFile = ".rtag"
 
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Initialize .rtag file",
-	Long:  `.rtag 文件用于存储已发布的 tag。`,
-	Run:   runInit,
-}
-
-var addCmd = &cobra.Command{
-	Use:   "add [tag]",
-	Short: "Add a new tag",
-	Long:  `Add a new tag to the .rtag file. If no tag is provided, interactive mode will be used.`,
-	Run:   runAdd,
-}
-
-var pushCmd = &cobra.Command{
-	Use:   "push [tag]",
-	Short: "Push tags to remote repository",
-	Long:  `Push tags to remote repository. Use --all flag to push all tags.`,
-	Run:   runPush,
-}
-
-var listCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"ls"},
-	Short:   "List all tags",
-	Long:    `List all tags from the .rtag file.`,
-	Run:     runList,
-}
-
-var rmCmd = &cobra.Command{
-	Use:   "rm [tag]",
-	Short: "Remove a tag",
-	Long:  `Remove a tag from the .rtag file.`,
-	Args:  cobra.ExactArgs(1),
-	Run:   runRm,
-}
+var initCmd *cobra.Command
+var addCmd *cobra.Command
+var pushCmd *cobra.Command
+var listCmd *cobra.Command
+var rmCmd *cobra.Command
 
 var pushAll bool
 
 func init() {
-	pushCmd.Flags().BoolVar(&pushAll, "all", false, "Push all tags")
-
-	rootCmd.AddCommand(initCmd, addCmd, pushCmd, listCmd, rmCmd)
+	initializeCommands()
 }
+
+func initializeCommands() {
+	// Initialize commands with translated strings
+	initCmd = &cobra.Command{
+		Use:   "init",
+		Short: T().InitShort,
+		Long:  T().InitLong,
+		Run:   runInit,
+	}
+
+	addCmd = &cobra.Command{
+		Use:   "add [tag]",
+		Short: T().AddShort,
+		Long:  T().AddLong,
+		Run:   runAdd,
+	}
+
+	pushCmd = &cobra.Command{
+		Use:   "push [tag]",
+		Short: T().PushShort,
+		Long:  T().PushLong,
+		Run:   runPush,
+	}
+
+	listCmd = &cobra.Command{
+		Use:     "list",
+		Aliases: []string{"ls"},
+		Short:   T().ListShort,
+		Long:    T().ListLong,
+		Run:     runList,
+	}
+
+	rmCmd = &cobra.Command{
+		Use:   "rm [tag]",
+		Short: T().RmShort,
+		Long:  T().RmLong,
+		Args:  cobra.ExactArgs(1),
+		Run:   runRm,
+	}
+
+	// Initialize lang command
+	langCmd = &cobra.Command{
+		Use:   "lang [language]",
+		Short: "Set or display current language",
+		Long:  "Set the language to 'en' for English or 'zh' for Chinese, or display current language if no argument provided.",
+		Args:  cobra.MaximumNArgs(1),
+		Run:   runLang,
+	}
+
+	pushCmd.Flags().BoolVar(&pushAll, "all", false, T().PushAllFlag)
+
+	rootCmd.AddCommand(initCmd, addCmd, pushCmd, listCmd, rmCmd, langCmd)
+}
+
+// Note: reinitializeCommands function removed to avoid circular dependency
+// Language changes will take effect on next command execution
 
 func runInit(cmd *cobra.Command, args []string) {
 	tags, err := readTags()
 	if err != nil {
-		fmt.Printf("错误读取 .rtag 文件: %v\n", err)
+		fmt.Printf(T().ErrorReadingRtagFile+"\n", err)
 		return
 	}
 
 	if len(tags) == 0 {
-		fmt.Println(".rtag 文件为空或不存在")
+		fmt.Println(T().RtagFileEmptyOrNotExist)
 		interactiveAddTag()
 	} else {
-		fmt.Println("当前 tags:")
+		fmt.Println(T().CurrentTags)
 		for _, tag := range tags {
 			fmt.Printf("  - %s\n", tag)
 		}
@@ -84,9 +107,9 @@ func runAdd(cmd *cobra.Command, args []string) {
 		// 直接添加指定的 tag
 		tag := args[0]
 		if err := addTag(tag); err != nil {
-			fmt.Printf("添加 tag 失败: %v\n", err)
+			fmt.Printf(T().AddTagFailed+"\n", err)
 		} else {
-			fmt.Printf("成功添加 tag: %s\n", tag)
+			fmt.Printf(T().AddTagSuccess+"\n", tag)
 		}
 	}
 }
@@ -96,12 +119,12 @@ func runPush(cmd *cobra.Command, args []string) {
 		// 推送所有 tags
 		tags, err := readTags()
 		if err != nil {
-			fmt.Printf("读取 tags 失败: %v\n", err)
+			fmt.Printf(T().ReadTagsFailed+"\n", err)
 			return
 		}
 
 		if len(tags) == 0 {
-			fmt.Println("没有找到任何 tags")
+			fmt.Println(T().NoTagsFound)
 			return
 		}
 
@@ -111,7 +134,7 @@ func runPush(cmd *cobra.Command, args []string) {
 		tag := args[0]
 		tags, err := readTags()
 		if err != nil {
-			fmt.Printf("读取 tags 失败: %v\n", err)
+			fmt.Printf(T().ReadTagsFailed+"\n", err)
 			return
 		}
 
@@ -125,29 +148,29 @@ func runPush(cmd *cobra.Command, args []string) {
 		}
 
 		if !found {
-			fmt.Printf("Tag '%s' 不存在于 .rtag 文件中\n", tag)
+			fmt.Printf(T().TagNotExistInFile+"\n", tag)
 			return
 		}
 
 		pushTags([]string{tag})
 	} else {
-		fmt.Println("请指定要推送的 tag 或使用 --all 标志")
+		fmt.Println(T().SpecifyTagOrUseAll)
 	}
 }
 
 func runList(cmd *cobra.Command, args []string) {
 	tags, err := readTags()
 	if err != nil {
-		fmt.Printf("读取 tags 失败: %v\n", err)
+		fmt.Printf(T().ReadTagsFailed+"\n", err)
 		return
 	}
 
 	if len(tags) == 0 {
-		fmt.Println("没有找到任何 tags")
+		fmt.Println(T().NoTagsFound)
 		return
 	}
 
-	fmt.Println("所有 tags:")
+	fmt.Println(T().AllTags)
 	for _, tag := range tags {
 		fmt.Printf("  - %s\n", tag)
 	}
@@ -156,9 +179,9 @@ func runList(cmd *cobra.Command, args []string) {
 func runRm(cmd *cobra.Command, args []string) {
 	tag := args[0]
 	if err := removeTag(tag); err != nil {
-		fmt.Printf("删除 tag 失败: %v\n", err)
+		fmt.Printf(T().RemoveTagFailed+"\n", err)
 	} else {
-		fmt.Printf("成功删除 tag: %s\n", tag)
+		fmt.Printf(T().RemoveTagSuccess+"\n", tag)
 	}
 }
 
@@ -209,7 +232,7 @@ func addTag(tag string) error {
 	// 检查 tag 是否已存在
 	for _, existingTag := range tags {
 		if existingTag == tag {
-			return fmt.Errorf("tag '%s' 已存在", tag)
+			return fmt.Errorf(T().TagAlreadyExists, tag)
 		}
 	}
 
@@ -235,7 +258,7 @@ func removeTag(tag string) error {
 	}
 
 	if !found {
-		return fmt.Errorf("tag '%s' 不存在", tag)
+		return fmt.Errorf(T().TagNotExist, tag)
 	}
 
 	return writeTags(newTags)
@@ -245,40 +268,40 @@ func interactiveAddTag() {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Print("请输入一个 tag (或输入 'exit' 退出): ")
+		fmt.Print(T().EnterTag)
 		input, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Printf("读取输入失败: %v\n", err)
+			fmt.Printf(T().ReadInputFailed+"\n", err)
 			return
 		}
 
 		input = strings.TrimSpace(input)
 		if input == "exit" {
-			fmt.Println("退出")
+			fmt.Println(T().Exit)
 			return
 		}
 
 		if input == "" {
-			fmt.Println("Tag 不能为空，请重新输入")
+			fmt.Println(T().TagCannotBeEmpty)
 			continue
 		}
 
 		if err := addTag(input); err != nil {
-			fmt.Printf("添加 tag 失败: %v\n", err)
+			fmt.Printf(T().AddTagFailed+"\n", err)
 		} else {
-			fmt.Printf("成功添加 tag: %s\n", input)
+			fmt.Printf(T().AddTagSuccess+"\n", input)
 		}
 
-		fmt.Print("是否继续添加? (y/n): ")
+		fmt.Print(T().ContinueAdding)
 		continueInput, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Printf("读取输入失败: %v\n", err)
+			fmt.Printf(T().ReadInputFailed+"\n", err)
 			return
 		}
 
 		continueInput = strings.TrimSpace(strings.ToLower(continueInput))
 		if continueInput != "y" && continueInput != "yes" {
-			fmt.Println("退出")
+			fmt.Println(T().Exit)
 			return
 		}
 	}
@@ -287,25 +310,25 @@ func interactiveAddTag() {
 func pushTags(tags []string) {
 	currentTime := time.Now().Format("200601021504") // YYYYMMDDHHMM
 
-	fmt.Printf("开始推送 tags (时间戳: %s)...\n", currentTime)
+	fmt.Printf(T().StartPushingTags+"\n", currentTime)
 
 	for _, tag := range tags {
 		gitTag := fmt.Sprintf("release-%s-%s", currentTime, tag)
-		fmt.Printf("创建 git tag: %s\n", gitTag)
+		fmt.Printf(T().CreateGitTag+"\n", gitTag)
 
 		// 执行 git tag 命令
 		if err := executeCommand("git", "tag", gitTag); err != nil {
-			fmt.Printf("创建 tag %s 失败: %v\n", gitTag, err)
+			fmt.Printf(T().CreateTagFailed+"\n", gitTag, err)
 			continue
 		}
 	}
 
 	// 推送所有 tags 到远程仓库
-	fmt.Println("推送 tags 到远程仓库...")
+	fmt.Println(T().PushingTagsToRemote)
 	if err := executeCommand("git", "push", "origin", "--tags"); err != nil {
-		fmt.Printf("推送 tags 失败: %v\n", err)
+		fmt.Printf(T().PushTagsFailed+"\n", err)
 	} else {
-		fmt.Println("成功推送所有 tags")
+		fmt.Println(T().PushTagsSuccess)
 	}
 }
 
