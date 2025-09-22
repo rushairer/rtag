@@ -12,9 +12,14 @@ rtag 是一个基于 Cobra 的 Go 命令行工具，用于管理项目的发布�
 
 ## 安装
 
+
+### 使用 go install
 ```bash
-go build -o rtag
+go install github.com/rushairer/rtag@latest
 ```
+
+
+确保 `$HOME/go/bin` 在你的 `PATH` 环境变量中。
 
 ## 使用方法
 
@@ -22,7 +27,7 @@ go build -o rtag
 
 #### 1. 初始运行
 ```bash
-./rtag
+rtag
 ```
 - 如果 `.rtag` 文件不存在或为空，会提示用户交互式添加标签
 - 如果文件存在，会显示当前所有标签
@@ -77,33 +82,33 @@ debug
 
 1. 初始化项目标签：
 ```bash
-./rtag
+rtag init
 # 交互式添加 api, cron, debug
 ```
 
 2. 添加新标签：
 ```bash
-./rtag add web
+rtag add web
 ```
 
 3. 查看所有标签：
 ```bash
-./rtag list
+rtag list
 ```
 
 4. 推送所有标签：
 ```bash
-./rtag push --all
+rtag push --all
 ```
 
 5. 推送单个标签：
 ```bash
-./rtag push api
+rtag push api
 ```
 
 6. 删除不需要的标签：
 ```bash
-./rtag rm web
+rtag rm web
 ```
 
 ## 注意事项

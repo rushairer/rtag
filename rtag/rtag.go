@@ -35,10 +35,11 @@ var pushCmd = &cobra.Command{
 }
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List all tags",
-	Long:  `List all tags from the .rtag file.`,
-	Run:   runList,
+	Use:     "list",
+	Aliases: []string{"ls"},
+	Short:   "List all tags",
+	Long:    `List all tags from the .rtag file.`,
+	Run:     runList,
 }
 
 var rmCmd = &cobra.Command{
