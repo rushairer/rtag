@@ -1,4 +1,4 @@
-module github.com/rushairer/release_tag
+module github.com/rushairer/rtag
 
 go 1.21
 

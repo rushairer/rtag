@@ -1,4 +1,4 @@
-package releasetag
+package rtag
 
 import (
 	"log"

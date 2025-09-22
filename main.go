@@ -1,7 +1,7 @@
 package main
 
-import releasetag "github.com/rushairer/release_tag/release_tag"
+import "github.com/rushairer/rtag/rtag"
 
 func main() {
-	releasetag.Execute()
+	rtag.Execute()
 }
