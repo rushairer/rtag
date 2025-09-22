@@ -1,217 +1,224 @@
-# rtag - Release Tag 管理工具
+# rtag - Release Tag Management Tool
 
-rtag 是一个基于 Cobra 的 Go 命令行工具，用于管理项目的发布标签。
+[![Go Version](https://img.shields.io/github/go-mod/go-version/rushairer/rtag)](https://golang.org/)
+[![Release](https://img.shields.io/github/v/release/rushairer/rtag)](https://github.com/rushairer/rtag/releases)
+[![License](https://img.shields.io/github/license/rushairer/rtag)](https://github.com/rushairer/rtag/blob/main/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rushairer/rtag)](https://goreportcard.com/report/github.com/rushairer/rtag)
+[![GitHub Issues](https://img.shields.io/github/issues/rushairer/rtag)](https://github.com/rushairer/rtag/issues)
+[![GitHub Stars](https://img.shields.io/github/stars/rushairer/rtag)](https://github.com/rushairer/rtag/stargazers)
 
-## 功能特性
+[中文文档](README_zh.md) | English
 
-- 管理本地 `.rtag` 文件中的标签
-- 交互式添加标签
-- 批量或单个推送 Git 标签
-- 列出所有标签
-- 删除标签
-- **🌍 国际化支持**：支持中文和英文双语界面
+rtag is a Cobra-based Go command-line tool for managing project release tags.
 
-## 安装
+## Features
 
+- Manage tags in local `.rtag` file
+- Interactive tag addition
+- Batch or individual Git tag pushing
+- List all tags
+- Delete tags
+- **🌍 Internationalization Support**: Multi-language interface supporting English, Chinese, French, and Russian
 
-### 使用 go install
+## Installation
+
+### Using go install
 ```bash
 go install github.com/rushairer/rtag@latest
 ```
 
+Make sure `$HOME/go/bin` is in your `PATH` environment variable.
 
-确保 `$HOME/go/bin` 在你的 `PATH` 环境变量中。
+## Usage
 
-## 使用方法
+### Basic Commands
 
-### 基本命令
-
-#### 1. 初始运行
+#### 1. Initial Run
 ```bash
 rtag
 ```
-- 如果 `.rtag` 文件不存在或为空，会提示用户交互式添加标签
-- 如果文件存在，会显示当前所有标签
+- If `.rtag` file doesn't exist or is empty, prompts user for interactive tag addition
+- If file exists, displays all current tags
 
-#### 2. 添加标签
+#### 2. Add Tags
 ```bash
-# 交互式添加标签
+# Interactive tag addition
 ./rtag add
 
-# 直接添加指定标签
+# Add specific tags directly
 ./rtag add api
 ./rtag add cron
 ./rtag add debug
 ```
 
-#### 3. 列出所有标签
+#### 3. List All Tags
 ```bash
 ./rtag list
 ```
 
-#### 4. 推送标签
+#### 4. Push Tags
 ```bash
-# 推送所有标签
+# Push all tags
 ./rtag push --all
 
-# 推送指定标签
+# Push specific tag
 ./rtag push api
 ```
 
-#### 5. 删除标签
+#### 5. Delete Tags
 ```bash
 ./rtag rm api
 ```
 
-## .rtag 文件格式
+## .rtag File Format
 
-`.rtag` 文件每行包含一个标签名，例如：
+The `.rtag` file contains one tag name per line, for example:
 ```
 api
 cron
 debug
 ```
 
-## Git 标签格式
+## Git Tag Format
 
-推送时会创建格式为 `release-YYYYMMDDHHMM-{tag}` 的 Git 标签，例如：
+When pushing, creates Git tags in format `release-YYYYMMDDHHMM-{tag}`, for example:
 - `release-202409221900-api`
 - `release-202409221900-cron`
 - `release-202409221900-debug`
 
-## 示例工作流
+## Example Workflow
 
-1. 初始化项目标签：
+1. Initialize project tags:
 ```bash
 rtag init
-# 交互式添加 api, cron, debug
+# Interactively add api, cron, debug
 ```
 
-2. 添加新标签：
+2. Add new tag:
 ```bash
 rtag add web
 ```
 
-3. 查看所有标签：
+3. View all tags:
 ```bash
 rtag list
 ```
 
-4. 推送所有标签：
+4. Push all tags:
 ```bash
 rtag push --all
 ```
 
-5. 推送单个标签：
+5. Push single tag:
 ```bash
 rtag push api
 ```
 
-6. 删除不需要的标签：
+6. Delete unwanted tag:
 ```bash
 rtag rm web
 ```
 
-7. 语言设置：
+7. Language settings:
 ```bash
-# 查看当前语言设置
+# View current language setting
 rtag lang
 
-# 设置为英文
+# Set to English
 rtag lang en
 
-# 设置为中文
+# Set to Chinese
 rtag lang zh
 ```
 
-## 国际化支持
+## Internationalization Support
 
-rtag 支持中文和英文双语界面，提供多种语言设置方式：
+rtag supports multi-language interfaces (English, Chinese, French, Russian) with multiple language setting methods:
 
-### 🌍 智能语言检测优先级
-1. **`RTAG_LANG` 环境变量**（`en` 或 `zh`）- **最高优先级**
-2. **保存的用户偏好设置**（`~/.config/rtag/config`）
-3. **系统语言自动检测**：
-   - 中文系统（`zh_CN`, `zh_TW`, `zh_HK` 等）→ 自动使用中文界面
-   - 其他语言系统（`en`, `fr`, `de`, `ja`, `ko` 等）→ 自动使用英文界面
-4. **默认使用英文**（后备选项）
+### 🌍 Smart Language Detection Priority
+1. **`RTAG_LANG` Environment Variable** (`en` or `zh`) - **Highest Priority**
+2. **Saved User Preference** (`~/.config/rtag/config`)
+3. **System Language Auto-detection**:
+   - Chinese systems (`zh_CN`, `zh_TW`, `zh_HK`, etc.) → Automatically use Chinese interface
+   - Other language systems (`en`, `fr`, `de`, `ja`, `ko`, etc.) → Automatically use English interface
+4. **Default to English** (fallback option)
 
-### 持久化语言设置
+### Persistent Language Settings
 ```bash
-# 查看当前语言设置
+# View current language setting
 rtag lang
 
-# 永久设置为中文（保存到配置文件）
+# Permanently set to Chinese (saved to config file)
 rtag lang zh
 
-# 永久设置为英文（保存到配置文件）
+# Permanently set to English (saved to config file)
 rtag lang en
 ```
 
-### 临时语言设置
+### Temporary Language Settings
 ```bash
-# 临时使用中文（仅当次命令有效）
+# Temporarily use Chinese (effective for current command only)
 RTAG_LANG=zh rtag --help
 
-# 临时使用英文（仅当次命令有效）
+# Temporarily use English (effective for current command only)
 RTAG_LANG=en rtag --help
 
-# 永久环境变量设置（添加到 ~/.zshrc 或 ~/.bashrc）
+# Permanent environment variable setting (add to ~/.zshrc or ~/.bashrc)
 export RTAG_LANG=zh
 ```
 
-### 系统语言示例
+### System Language Examples
 ```bash
-# 中文系统自动使用中文界面
-LANG=zh_CN.UTF-8 rtag --help  # 显示中文
+# Chinese system automatically uses Chinese interface
+LANG=zh_CN.UTF-8 rtag --help  # Shows Chinese
 
-# 英文系统自动使用英文界面  
-LANG=en_US.UTF-8 rtag --help  # 显示英文
+# English system automatically uses English interface  
+LANG=en_US.UTF-8 rtag --help  # Shows English
 
-# 其他语言系统默认使用英文界面
-LANG=ja_JP.UTF-8 rtag --help  # 显示英文
+# Other language systems default to English interface
+LANG=ja_JP.UTF-8 rtag --help  # Shows English
 ```
 
-### 配置文件位置
+### Config File Location
 - Linux/macOS: `~/.config/rtag/config`
 - Windows: `%USERPROFILE%\.rtag\config`
 
-## 注意事项
+## Notes
 
-- 确保在 Git 仓库中运行此工具
-- 推送标签前请确保有推送权限
-- 标签名不能重复
-- 删除标签只会从 `.rtag` 文件中删除，不会删除已推送的 Git 标签
+- Ensure running this tool in a Git repository
+- Ensure push permissions before pushing tags
+- Tag names cannot be duplicated
+- Deleting tags only removes from `.rtag` file, doesn't delete pushed Git tags
 
-### 🌍 国际化特性
-- **智能检测**：首次使用时根据系统语言自动选择合适的界面语言
-- **持久化保存**：语言偏好自动保存，设置一次永久生效
-- **环境变量覆盖**：`RTAG_LANG` 具有最高优先级，可临时覆盖任何设置
-- **跨平台支持**：支持 Linux、macOS、Windows 系统语言检测
+### 🌍 Internationalization Features
+- **Smart Detection**: Automatically selects appropriate interface language based on system language on first use
+- **Persistent Storage**: Language preferences are automatically saved, set once and effective permanently
+- **Environment Variable Override**: `RTAG_LANG` has highest priority, can temporarily override any setting
+- **Cross-platform Support**: Supports Linux, macOS, Windows system language detection
 
-## 🌐 贡献新语言支持
+## 🌐 Contributing New Language Support
 
-欢迎为 rtag 添加新语言支持！目前已支持：
+Welcome to add new language support for rtag! Currently supported:
 - 🇺🇸 English (en)
 - 🇨🇳 中文 (zh)
 - 🇫🇷 Français (fr)
 - 🇷🇺 Русский (ru)
 
-### 添加新语言只需 3 个步骤：
+### Adding a new language requires only 3 steps:
 
-#### 步骤 1：在 `languages.go` 中添加语言定义
+#### Step 1: Add language definition in `languages.go`
 
 ```go
-// 在常量定义中添加新语言
+// Add new language in constants
 const (
     LangEN Language = "en"
     LangZH Language = "zh"
     LangFR Language = "fr"
     LangRU Language = "ru"
-    LangJA Language = "ja"  // 新增日语
+    LangJA Language = "ja"  // Add Japanese
 )
 
-// 在 GetSupportedLanguages() 函数中添加语言信息
+// Add language info in GetSupportedLanguages() function
 LangJA: {
     Code:       LangJA,
     Name:       "Japanese",
@@ -220,20 +227,20 @@ LangJA: {
 },
 ```
 
-#### 步骤 2：在 `messages.go` 中添加翻译函数
+#### Step 2: Add translation function in `messages.go`
 
 ```go
-// 创建新的翻译函数
+// Create new translation function
 func getJapaneseMessages() Messages {
     return Messages{
         RootShort: "リリースタグ管理ツール",
         RootLong:  "rtag は git 統合でリリースタグを管理するコマンドラインツールです。",
-        // ... 添加所有消息的日语翻译
+        // ... Add Japanese translations for all messages
     }
 }
 ```
 
-#### 步骤 3：更新 `GetAllMessages()` 函数
+#### Step 3: Update `GetAllMessages()` function
 
 ```go
 func GetAllMessages() map[Language]Messages {
@@ -242,31 +249,39 @@ func GetAllMessages() map[Language]Messages {
         LangZH: getChineseMessages(),
         LangFR: getFrenchMessages(),
         LangRU: getRussianMessages(),
-        LangJA: getJapaneseMessages(),  // 添加新语言映射
+        LangJA: getJapaneseMessages(),  // Add new language mapping
     }
 }
 ```
 
-### 🎯 翻译指南
+### 🎯 Translation Guidelines
 
-1. **保持一致性**：确保术语翻译在整个应用中保持一致
-2. **本地化适配**：考虑目标语言的文化和使用习惯
-3. **格式化字符串**：注意保留 `%s`、`%v` 等格式化占位符
-4. **测试验证**：添加翻译后请测试所有命令确保正常工作
+1. **Maintain Consistency**: Ensure terminology translations are consistent throughout the application
+2. **Localization Adaptation**: Consider cultural and usage habits of the target language
+3. **Format Strings**: Be careful to preserve format placeholders like `%s`, `%v`
+4. **Testing**: Test all commands after adding translations to ensure proper functionality
 
-### 📝 提交贡献
+### 📝 Contributing
 
-1. Fork 本项目
-2. 创建新分支：`git checkout -b add-language-xx`
-3. 按照上述 3 个步骤添加新语言支持
-4. 测试新语言：`RTAG_LANG=xx rtag --help`
-5. 提交 Pull Request
+1. Fork this project
+2. Create new branch: `git checkout -b add-language-xx`
+3. Follow the 3 steps above to add new language support
+4. Test new language: `RTAG_LANG=xx rtag --help`
+5. Submit Pull Request
 
-### 🔍 需要翻译的消息类型
+### 🔍 Message Types to Translate
 
-- **命令描述**：各个子命令的简短和详细描述
-- **标志说明**：命令行参数的说明文字
-- **用户消息**：错误提示、成功消息、交互提示等
-- **语言命令**：语言设置相关的提示信息
+- **Command Descriptions**: Short and detailed descriptions of subcommands
+- **Flag Descriptions**: Command-line parameter descriptions
+- **User Messages**: Error messages, success messages, interactive prompts, etc.
+- **Language Commands**: Language setting related prompts
 
-每种语言大约需要翻译 **40+ 条消息**，完整的消息列表请参考 `messages.go` 中的 `Messages` 结构体。
+Each language requires translation of approximately **40+ messages**. For the complete message list, refer to the `Messages` struct in `messages.go`.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
