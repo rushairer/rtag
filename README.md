@@ -43,31 +43,31 @@ rtag
 #### 2. Add Tags
 ```bash
 # Interactive tag addition
-./rtag add
+rtag add
 
 # Add specific tags directly
-./rtag add api
-./rtag add cron
-./rtag add debug
+rtag add api
+rtag add cron
+rtag add debug
 ```
 
 #### 3. List All Tags
 ```bash
-./rtag list
+rtag list
 ```
 
 #### 4. Push Tags
 ```bash
 # Push all tags
-./rtag push --all
+rtag push --all
 
 # Push specific tag
-./rtag push api
+rtag push api
 ```
 
 #### 5. Delete Tags
 ```bash
-./rtag rm api
+rtag rm api
 ```
 
 ## .rtag File Format
