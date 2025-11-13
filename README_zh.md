@@ -43,31 +43,31 @@ rtag
 #### 2. 添加标签
 ```bash
 # 交互式添加标签
-./rtag add
+rtag add
 
 # 直接添加指定标签
-./rtag add api
-./rtag add cron
-./rtag add debug
+rtag add api
+rtag add cron
+rtag add debug
 ```
 
 #### 3. 列出所有标签
 ```bash
-./rtag list
+rtag list
 ```
 
 #### 4. 推送标签
 ```bash
 # 推送所有标签
-./rtag push --all
+rtag push --all
 
 # 推送指定标签
-./rtag push api
+rtag push api
 ```
 
 #### 5. 删除标签
 ```bash
-./rtag rm api
+rtag rm api
 ```
 
 ## .rtag 文件格式
