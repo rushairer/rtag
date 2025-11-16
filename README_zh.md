@@ -35,7 +35,7 @@ go install github.com/rushairer/rtag@latest
 
 #### 1. 初始运行
 ```bash
-rtag
+rtag init
 ```
 - 如果 `.rtag` 文件不存在或为空，会提示用户交互式添加标签
 - 如果文件存在，会显示当前所有标签

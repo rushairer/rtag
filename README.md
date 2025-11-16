@@ -35,7 +35,7 @@ Make sure `$HOME/go/bin` is in your `PATH` environment variable.
 
 #### 1. Initial Run
 ```bash
-rtag
+rtag init
 ```
 - If `.rtag` file doesn't exist or is empty, prompts user for interactive tag addition
 - If file exists, displays all current tags
